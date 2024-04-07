@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,7 +8,8 @@
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f5f5f5;
+    background-color: #2b2b2b; /* Night mode background color */
+    color: #ffffff; /* Night mode text color */
   }
 
   .container {
@@ -103,11 +103,16 @@
 
   #imageUrls {
     height: 150px; /* Adjust height as needed */
+    width: 650px; /* Adjust width as needed */
   }
 
   /* Add styles for icons */
   .icon {
     margin-right: 5px;
+  }
+
+  #imageList {
+    background-color: #f2f2f2; /* Light grey */
   }
 </style>
 </head>
@@ -138,209 +143,222 @@
 </div>
 <div class="canvas-container">
   <div>
-    <canvas id="mainCanvas"></canvas>
+    Main Image:<p>
+    <canvas id="mainCanvas"></canvas><p>
+    Image Rotation:<input type="range" id="rotationSlider" min="0" max="360" step=".25" value="0"><p>
+    Final Image:<p>
     <canvas id="croppedCanvas" width="1400" height="786" class="cropped-image"></canvas>
   </div>
 </div>
 
 <script>
-let isCropping = false;
-let startX, startY, endX, endY;
-let defaultWidth = 1400;
-let defaultHeight = 786;
-let currentImageUrl = '';
-let imageCounter = 1;
-
-function loadImage(url) {
-  currentImageUrl = url;
-  const mainCanvas = document.getElementById('mainCanvas');
-  const ctx = mainCanvas.getContext('2d');
-  const image = new Image();
-
-  image.crossOrigin = 'Anonymous'; // Enable cross-origin image loading
-
-  image.onload = function() {
-    const aspectRatio = defaultWidth / defaultHeight;
-    const imageAspectRatio = this.width / this.height;
-    let destWidth, destHeight;
-
-    if (imageAspectRatio > aspectRatio) {
-      destWidth = defaultWidth;
-      destHeight = defaultWidth / imageAspectRatio;
-    } else {
-      destWidth = defaultHeight * imageAspectRatio;
-      destHeight = defaultHeight;
-    }
-
-    mainCanvas.width = destWidth;
-    mainCanvas.height = destHeight;
-    ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-    ctx.drawImage(image, 0, 0, destWidth, destHeight);
-  };
-
-  image.onerror = function() {
-    console.error("Failed to load the image:", url);
-  };
-
-  image.src = url;
-}
-
-function loadImages() {
-  const imageUrlsInput = document.getElementById('imageUrls');
-  const imageUrls = imageUrlsInput.value.split(/[,\n]/).map(url => url.trim()).filter(url => url !== '');
-
-  const imageList = document.getElementById('imageList');
-  imageList.innerHTML = '';
-  const ul = document.createElement('ul');
-  imageList.appendChild(ul);
-
-  imageCounter = 1;
-  imageUrls.forEach(url => {
-    const li = document.createElement('li');
-    const span = document.createElement('span');
-    span.textContent = imageCounter++ + '.';
-    li.appendChild(span);
-    li.appendChild(document.createTextNode(url));
-    li.onclick = () => loadImage(url);
-    ul.appendChild(li);
-  });
-
-  // Enable crop button when images are loaded
-  document.getElementById('cropBtn').disabled = false;
-}
-
-function toggleCrop() {
-  isCropping = !isCropping;
-}
-
-function cropImage() {
-  if (!isCropping || !currentImageUrl) {
-    return;
-  }
-
-  const mainCanvas = document.getElementById('mainCanvas');
-  const mainCtx = mainCanvas.getContext('2d');
-  const croppedCanvas = document.getElementById('croppedCanvas');
-  const croppedCtx = croppedCanvas.getContext('2d');
-
-  const sourceX = Math.min(startX, endX);
-  const sourceY = Math.min(startY, endY);
-  const width = Math.abs(startX - endX);
-  const height = Math.abs(startY - endY);
-
-  const imageData = mainCtx.getImageData(sourceX, sourceY, width, height);
-
-  const resolution = document.querySelector('input[name="resolution"]:checked').value.split('x');
-  const targetWidth = parseInt(resolution[0]);
-  const targetHeight = parseInt(resolution[1]);
-
-  croppedCanvas.width = targetWidth;
-  croppedCanvas.height = targetHeight;
-
-  croppedCtx.clearRect(0, 0, croppedCanvas.width, croppedCanvas.height);
-  croppedCtx.imageSmoothingEnabled = true; // Enable anti-aliasing
-  croppedCtx.drawImage(mainCanvas, sourceX, sourceY, width, height, 0, 0, targetWidth, targetHeight);
-}
-
-function handleMouseDown(event) {
-  if (!isCropping || !currentImageUrl) {
-    return;
-  }
-
-  const mainCanvas = document.getElementById('mainCanvas');
-  const rect = mainCanvas.getBoundingClientRect();
-  startX = event.clientX - rect.left;
-  startY = event.clientY - rect.top;
-
-  mainCanvas.addEventListener('mousemove', handleMouseMove);
-  mainCanvas.addEventListener('mouseup', handleMouseUp);
-}
-
-function handleMouseMove(event) {
-  if (!isCropping || !currentImageUrl) {
-    return;
-  }
-
-  const mainCanvas = document.getElementById('mainCanvas');
-  const rect = mainCanvas.getBoundingClientRect();
-  endX = event.clientX - rect.left;
-  endY = event.clientY - rect.top;
-
-  drawSelectionBox();
-}
-
-function handleMouseUp(event) {
-  if (!isCropping || !currentImageUrl) {
-    return;
-  }
-
-  const mainCanvas = document.getElementById('mainCanvas');
-  mainCanvas.removeEventListener('mousemove', handleMouseMove);
-  mainCanvas.removeEventListener('mouseup', handleMouseUp);
-
-  cropImage();
-}
-
-function drawSelectionBox() {
-  const mainCanvas = document.getElementById('mainCanvas');
-  const mainCtx = mainCanvas.getContext('2d');
+  let isCropping = false;
+  let startX, startY, endX, endY;
+  let defaultWidth = 1400;
+  let defaultHeight = 786;
+  let currentImageUrl = '';
+  let imageCounter = 1;
+  let rotationAngle = 0;
   
-  mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-  loadImage(currentImageUrl); // Redraw the original image
-
-  mainCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-  const x = Math.min(startX, endX);
-  const y = Math.min(startY, endY);
-  const width = Math.abs(startX - endX);
-  const height = Math.abs(startY - endY);
-  mainCtx.fillRect(x, y, width, height);
-}
-
-function saveImage() {
-  const croppedCanvas = document.getElementById('croppedCanvas');
-  const itemNameInput = document.getElementById('itemName').value;
-  const storeDetailsInput = document.getElementById('storeDetails').value;
-  const imageNameInput = document.getElementById('imageName');
-  const imageNameValue = itemNameInput.replace(/\s+/g, '_') + '_' + storeDetailsInput.replace(/\s+/g, '_');
-
-  if (!imageNameValue) {
-    alert("Please enter a name for the image.");
-    return;
+  function loadImage(url) {
+    currentImageUrl = url;
+    const mainCanvas = document.getElementById('mainCanvas');
+    const ctx = mainCanvas.getContext('2d');
+    const image = new Image();
+  
+    image.crossOrigin = 'Anonymous'; // Enable cross-origin image loading
+  
+    image.onload = function() {
+      const aspectRatio = defaultWidth / defaultHeight;
+      const imageAspectRatio = this.width / this.height;
+      let destWidth, destHeight;
+  
+      if (imageAspectRatio > aspectRatio) {
+        destWidth = defaultWidth;
+        destHeight = defaultWidth / imageAspectRatio;
+      } else {
+        destWidth = defaultHeight * imageAspectRatio;
+        destHeight = defaultHeight;
+      }
+  
+      mainCanvas.width = destWidth;
+      mainCanvas.height = destHeight;
+      ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+      ctx.save(); // Save the current transformation matrix
+      ctx.translate(mainCanvas.width / 2, mainCanvas.height / 2); // Translate to center of canvas
+      ctx.rotate(rotationAngle * Math.PI / 180); // Rotate the canvas
+      ctx.drawImage(image, -destWidth / 2, -destHeight / 2, destWidth, destHeight); // Draw the image
+      ctx.restore(); // Restore the saved transformation matrix
+    };
+  
+    image.onerror = function() {
+      console.error("Failed to load the image:", url);
+    };
+  
+    image.src = url;
   }
-
-  const link = document.createElement('a');
-  link.download = imageNameValue + '.jpeg';
-  link.href = croppedCanvas.toDataURL('image/jpeg', 0.9); // Adjust quality settings
-  link.click();
-}
-
-document.getElementById('mainCanvas').addEventListener('mousedown', handleMouseDown);
-
-// Add event listener for keydown events
-document.addEventListener('keydown', function(event) {
-  // Check if Ctrl key is pressed along with another key
-  if (event.ctrlKey) {
-    // Check for specific key combinations
-    switch (event.key) {
-      case 'l':
-        // Load images shortcut (Ctrl + L)
-        loadImages();
-        break;
-      case 'c':
-        // Crop image shortcut (Ctrl + C)
-        toggleCrop();
-        break;
-      case 's':
-        // Save image shortcut (Ctrl + S)
-        saveImage();
-        break;
-      default:
-        // Handle other key combinations if needed
-        break;
+  
+  function loadImages() {
+    const imageUrlsInput = document.getElementById('imageUrls');
+    const imageUrls = imageUrlsInput.value.split(/[,\n]/).map(url => url.trim()).filter(url => url !== '');
+  
+    const imageList = document.getElementById('imageList');
+    imageList.innerHTML = '';
+    const ul = document.createElement('ul');
+    imageList.appendChild(ul);
+  
+    imageCounter = 1;
+    imageUrls.forEach(url => {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.textContent = imageCounter++ + '.';
+      li.appendChild(span);
+      li.appendChild(document.createTextNode(url));
+      li.onclick = () => loadImage(url);
+      ul.appendChild(li);
+    });
+  
+    // Enable crop button when images are loaded
+    document.getElementById('cropBtn').disabled = false;
+  }
+  
+  function toggleCrop() {
+    isCropping = !isCropping;
+  }
+  
+  function cropImage() {
+    if (!isCropping || !currentImageUrl) {
+      return;
     }
+  
+    const mainCanvas = document.getElementById('mainCanvas');
+    const mainCtx = mainCanvas.getContext('2d');
+    const croppedCanvas = document.getElementById('croppedCanvas');
+    const croppedCtx = croppedCanvas.getContext('2d');
+  
+    const sourceX = Math.min(startX, endX);
+    const sourceY = Math.min(startY, endY);
+    const width = Math.abs(startX - endX);
+    const height = Math.abs(startY - endY);
+  
+    const imageData = mainCtx.getImageData(sourceX, sourceY, width, height);
+  
+    const resolution = document.querySelector('input[name="resolution"]:checked').value.split('x');
+    const targetWidth = parseInt(resolution[0]);
+    const targetHeight = parseInt(resolution[1]);
+  
+    croppedCanvas.width = targetWidth;
+    croppedCanvas.height = targetHeight;
+  
+    croppedCtx.clearRect(0, 0, croppedCanvas.width, croppedCanvas.height);
+    croppedCtx.imageSmoothingEnabled = true; // Enable anti-aliasing
+    croppedCtx.drawImage(mainCanvas, sourceX, sourceY, width, height, 0, 0, targetWidth, targetHeight);
   }
-});
-
-</script>
+  
+  function handleMouseDown(event) {
+    if (!isCropping || !currentImageUrl) {
+      return;
+    }
+  
+    const mainCanvas = document.getElementById('mainCanvas');
+    const rect = mainCanvas.getBoundingClientRect();
+    startX = event.clientX - rect.left;
+    startY = event.clientY - rect.top;
+  
+    mainCanvas.addEventListener('mousemove', handleMouseMove);
+    mainCanvas.addEventListener('mouseup', handleMouseUp);
+  }
+  
+  function handleMouseMove(event) {
+    if (!isCropping || !currentImageUrl) {
+      return;
+    }
+  
+    const mainCanvas = document.getElementById('mainCanvas');
+    const rect = mainCanvas.getBoundingClientRect();
+    endX = event.clientX - rect.left;
+    endY = event.clientY - rect.top;
+  
+    drawSelectionBox();
+  }
+  
+  function handleMouseUp(event) {
+    if (!isCropping || !currentImageUrl) {
+      return;
+    }
+  
+    const mainCanvas = document.getElementById('mainCanvas');
+    mainCanvas.removeEventListener('mousemove', handleMouseMove);
+    mainCanvas.removeEventListener('mouseup', handleMouseUp);
+  
+    cropImage();
+  }
+  
+  function drawSelectionBox() {
+    const mainCanvas = document.getElementById('mainCanvas');
+    const mainCtx = mainCanvas.getContext('2d');
+    
+    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    loadImage(currentImageUrl); // Redraw the original image
+  
+    mainCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    const x = Math.min(startX, endX);
+    const y = Math.min(startY, endY);
+    const width = Math.abs(startX - endX);
+    const height = Math.abs(startY - endY);
+    mainCtx.fillRect(x, y, width, height);
+  }
+  
+  function saveImage() {
+    const croppedCanvas = document.getElementById('croppedCanvas');
+    const itemNameInput = document.getElementById('itemName').value;
+    const storeDetailsInput = document.getElementById('storeDetails').value;
+    const imageNameInput = document.getElementById('imageName');
+    const imageNameValue = itemNameInput.replace(/\s+/g, '_') + '_' + storeDetailsInput.replace(/\s+/g, '_');
+  
+    if (!imageNameValue) {
+      alert("Please enter a name for the image.");
+      return;
+    }
+  
+    const link = document.createElement('a');
+    link.download = imageNameValue + '.jpeg';
+    link.href = croppedCanvas.toDataURL('image/jpeg', 0.9); // Adjust quality settings
+    link.click();
+  }
+  
+  document.getElementById('mainCanvas').addEventListener('mousedown', handleMouseDown);
+  
+  // Add event listener for keydown events
+  document.addEventListener('keydown', function(event) {
+    // Check if Ctrl key is pressed along with another key
+    if (event.ctrlKey) {
+      // Check for specific key combinations
+      switch (event.key) {
+        case 'l':
+          // Load images shortcut (Ctrl + L)
+          loadImages();
+          break;
+        case 'c':
+          // Crop image shortcut (Ctrl + C)
+          toggleCrop();
+          break;
+        case 's':
+          // Save image shortcut (Ctrl + S)
+          saveImage();
+          break;
+        default:
+          // Handle other key combinations if needed
+          break;
+      }
+    }
+  });
+  
+  document.getElementById('rotationSlider').addEventListener('input', function(event) {
+    rotationAngle = parseInt(event.target.value);
+    loadImage(currentImageUrl); // Reload the image with the new rotation angle
+  });
+  
+  </script>
 </body>
 </html>
