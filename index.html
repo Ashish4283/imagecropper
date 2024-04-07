@@ -105,6 +105,10 @@
     height: 150px; /* Adjust height as needed */
     width: 650px; /* Adjust width as needed */
   }
+  #Notes{
+    height: 150px; /* Adjust height as needed */
+    width: 650px; /* Adjust width as needed */
+  }
 
   /* Add styles for icons */
   .icon {
@@ -123,6 +127,7 @@
 <div class="container">
   <div class="input-container">
     <textarea id="imageUrls" placeholder="Enter Image URLs (one per row or separated by ',')"></textarea>
+    <textarea id="Notes" placeholder="Notes"></textarea><P>
     <button id="loadBtn" onclick="loadImages()">Load Images</button>
     <button id="cropBtn" onclick="toggleCrop()" disabled>Crop Image</button>
   </div>
@@ -148,7 +153,7 @@
   <div>
     Main Image:<p>
     <canvas id="mainCanvas"></canvas><p>
-    Rotate Image:<input type="range" id="rotationSlider" min="0" max="360" step=".25" value="0"><p>
+    Image Rotation:<input type="range" id="rotationSlider" min="0" max="360" step=".25" value="0"><p>
     Final Image:<p>
     <canvas id="croppedCanvas" width="1400" height="786" class="cropped-image"></canvas>
   </div>
