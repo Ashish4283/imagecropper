@@ -138,7 +138,7 @@
   </div>
   <div class="resolution-options">
     <label>
-      <input type="radio" name="resolution" value="1400x786" checked> 1400x786
+      <input type="radio" name="resolution" value="1400x800" checked> 1400x800
     </label>
     <label>
       <input type="radio" name="resolution" value="440x440"> 440x440
@@ -155,7 +155,7 @@
     <canvas id="mainCanvas"></canvas><p>
     Rotate Image:<input type="range" id="rotationSlider" min="0" max="360" step=".25" value="0"><p>
     Final Image:<p>
-    <canvas id="croppedCanvas" width="1400" height="786" class="cropped-image"></canvas>
+    <canvas id="croppedCanvas" width="1400" height="800" class="cropped-image"></canvas>
   </div>
 </div>
 
@@ -163,7 +163,7 @@
   let isCropping = false;
   let startX, startY, endX, endY;
   let defaultWidth = 1400;
-  let defaultHeight = 786;
+  let defaultHeight = 800;
   let currentImageUrl = '';
   let imageCounter = 1;
   let rotationAngle = 0;
