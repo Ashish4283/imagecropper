@@ -1,0 +1,175 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #2b2b2b; /* Night mode background color */
+  color: #ffffff; /* Night mode text color */
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 50px;
+}
+
+.input-container {
+  margin-bottom: 20px;
+}
+
+.input-container input[type="text"],
+.input-container textarea {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.input-container button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.input-container button:hover {
+  background-color: #45a049;
+}
+
+.input-container button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.resolution-options label {
+  margin-right: 10px;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+canvas {
+  border: 1px solid #ccc;
+  max-width: 100%;
+  max-height: 90vh;
+}
+
+.cropped-image {
+  margin-top: 20px;
+}
+
+.image-list {
+  margin-top: 20px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.image-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.image-list li {
+  margin-bottom: 10px;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
+
+.image-list li:hover {
+  color: navy;
+}
+
+.image-list li span {
+  margin-right: 5px;
+}
+
+#imageUrls {
+  height: 150px; /* Adjust height as needed */
+  width: 650px; /* Adjust width as needed */
+}
+#Notes{
+  height: 150px; /* Adjust height as needed */
+  width: 650px; /* Adjust width as needed */
+}
+
+/* Add styles for icons */
+.icon {
+  margin-right: 5px;
+}
+
+#imageList {
+  background-color: #f2f2f2; /* Light grey */
+  padding: 10px; /* Adjust padding as needed */
+  border: 1px solid #ccc; /* Add border */
+  border-radius: 5px; /* Optional: Add border radius for rounded corners */
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.title {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.options {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.options button {
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.options button:hover {
+  background-color: #45a049;
+}
+
+.slider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.filter-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.filter-info p {
+  margin: 0;
+  font-size: 14px;
+}
