@@ -430,3 +430,44 @@ function flipCroppedImage(direction) {
   applyFilterToCroppedImage();
 }
 
+function apply3DEffect() {
+  const croppedCanvas = document.getElementById('croppedCanvas');
+  const ctx = croppedCanvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, croppedCanvas.width, croppedCanvas.height);
+  const data = imageData.data;
+  const width = croppedCanvas.width;
+  const height = croppedCanvas.height;
+
+  // Define light source position
+  const lightX = width * 0.75; // X-coordinate of light source (adjust as needed)
+  const lightY = height * 0.25; // Y-coordinate of light source (adjust as needed)
+
+  // Calculate the distance from each pixel to the light source
+  for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+          // Calculate distance from current pixel to light source
+          const distanceX = lightX - x;
+          const distanceY = lightY - y;
+          const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+          // Calculate brightness based on distance (inverse square law)
+          const brightness = 1 / (distance * distance);
+
+          // Apply brightness to RGB channels
+          const index = (y * width + x) * 4;
+          data[index] *= brightness; // Red
+          data[index + 1] *= brightness; // Green
+          data[index + 2] *= brightness; // Blue
+      }
+  }
+
+  // Apply modified image data
+  ctx.putImageData(imageData, 0, 0);
+}
+
+
+    // Event listener for rotation slider
+    document.getElementById('rotationSlider').addEventListener('input', () => {
+      rotationAngle = parseFloat(document.getElementById('rotationSlider').value);
+      loadImage(currentImageUrl); // Reload the image with the new rotation angle
+    });
